@@ -14,7 +14,7 @@ from services import (
     user_management_service,
     jwt_token_service
 )
-from .dependencies import get_current_authenticated_user
+from routes.dependencies import get_current_authenticated_user
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
