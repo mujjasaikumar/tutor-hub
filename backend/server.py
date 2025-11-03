@@ -528,6 +528,45 @@ async def delete_batch(
     
     return {"message": "Batch deleted successfully"}
 
+@api_router.get("/batches/{batch_id}/activities")
+async def get_batch_activities(
+    batch_id: str,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.TUTOR]))
+):
+    """Get all activities for a batch - classes, students, materials"""
+    batch = await db.batches.find_one({"id": batch_id}, {"_id": 0})
+    if not batch:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    
+    # Get classes
+    classes = await db.classes.find({"batch_id": batch_id}, {"_id": 0}).to_list(1000)
+    for cls in classes:
+        if isinstance(cls["class_date"], str):
+            cls["class_date"] = datetime.fromisoformat(cls["class_date"])
+        if isinstance(cls["created_at"], str):
+            cls["created_at"] = datetime.fromisoformat(cls["created_at"])
+    
+    # Get students
+    students = await db.students.find({"batch_id": batch_id}, {"_id": 0}).to_list(1000)
+    for student in students:
+        if isinstance(student["created_at"], str):
+            student["created_at"] = datetime.fromisoformat(student["created_at"])
+    
+    # Get materials
+    materials = await db.materials.find({"batch_id": batch_id}, {"_id": 0}).to_list(1000)
+    for material in materials:
+        if isinstance(material["created_at"], str):
+            material["created_at"] = datetime.fromisoformat(material["created_at"])
+        if material.get("expiry_date") and isinstance(material["expiry_date"], str):
+            material["expiry_date"] = datetime.fromisoformat(material["expiry_date"])
+    
+    return {
+        "batch": batch,
+        "classes": classes,
+        "students": students,
+        "materials": materials
+    }
+
 # ============ TUTOR MANAGEMENT ROUTES ============
 
 @api_router.get("/tutors", response_model=List[User])
