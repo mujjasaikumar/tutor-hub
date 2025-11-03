@@ -60,25 +60,67 @@ export default function AdminStudents() {
     e.preventDefault();
 
     try {
-      await api.post('/students', {
-        ...formData,
-        total_fees: parseFloat(formData.total_fees),
-      });
+      if (editMode) {
+        await api.put(`/students/${selectedStudent.id}`, formData);
+        toast.success('Student updated successfully!');
+      } else {
+        await api.post('/students', {
+          ...formData,
+          total_fees: parseFloat(formData.total_fees),
+        });
+        toast.success('Student added successfully!');
+      }
       
-      toast.success('Student added successfully!');
       setDialogOpen(false);
       fetchStudents();
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        whatsapp: '',
-        batch_id: '',
-        total_fees: 0,
-      });
+      resetForm();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to add student');
+      toast.error(error.response?.data?.detail || `Failed to ${editMode ? 'update' : 'add'} student`);
     }
+  };
+
+  const handleEdit = (student) => {
+    setSelectedStudent(student);
+    setFormData({
+      name: student.name,
+      email: student.email,
+      phone: student.phone,
+      whatsapp: student.whatsapp || '',
+      batch_id: student.batch_id,
+      total_fees: student.total_fees,
+    });
+    setEditMode(true);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await api.delete(`/students/${studentToDelete}`);
+      toast.success('Student deleted successfully!');
+      fetchStudents();
+      setDeleteDialogOpen(false);
+      setStudentToDelete(null);
+    } catch (error) {
+      toast.error('Failed to delete student');
+    }
+  };
+
+  const openDeleteDialog = (studentId) => {
+    setStudentToDelete(studentId);
+    setDeleteDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      whatsapp: '',
+      batch_id: '',
+      total_fees: 0,
+    });
+    setEditMode(false);
+    setSelectedStudent(null);
   };
 
   const handleFileUpload = async (e) => {
