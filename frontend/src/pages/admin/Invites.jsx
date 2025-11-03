@@ -198,57 +198,58 @@ export default function AdminInvites() {
                   Send Invite
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-w-md" data-testid="send-invite-dialog">
-              <DialogHeader>
-                <DialogTitle>Send Invitation</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                    data-testid="invite-email-input"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="role">Role</Label>
-                  <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                    <SelectTrigger data-testid="invite-role-select">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="tutor">Tutor</SelectItem>
-                      <SelectItem value="student">Student</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {formData.role === 'student' && (
+              <DialogContent className="max-w-md" data-testid="send-invite-dialog">
+                <DialogHeader>
+                  <DialogTitle>Send Invitation</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="batch_id">Batch (Optional)</Label>
-                    <Select value={formData.batch_id} onValueChange={(value) => setFormData({ ...formData, batch_id: value })}>
-                      <SelectTrigger data-testid="invite-batch-select">
-                        <SelectValue placeholder="Select batch" />
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                      data-testid="invite-email-input"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="role">Role</Label>
+                    <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                      <SelectTrigger data-testid="invite-role-select">
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {batches.map((batch) => (
-                          <SelectItem key={batch.id} value={batch.id}>
-                            {batch.name}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="tutor">Tutor</SelectItem>
+                        <SelectItem value="student">Student</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                )}
-                <Button type="submit" className="w-full" data-testid="submit-invite-button">
-                  Send Invite
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  {formData.role === 'student' && (
+                    <div>
+                      <Label htmlFor="batch_id">Batch (Optional)</Label>
+                      <Select value={formData.batch_id} onValueChange={(value) => setFormData({ ...formData, batch_id: value })}>
+                        <SelectTrigger data-testid="invite-batch-select">
+                          <SelectValue placeholder="Select batch" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {batches.map((batch) => (
+                            <SelectItem key={batch.id} value={batch.id}>
+                              {batch.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  <Button type="submit" className="w-full" data-testid="submit-invite-button">
+                    Send Invite
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {loading ? (
