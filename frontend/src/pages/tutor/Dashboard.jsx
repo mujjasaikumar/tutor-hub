@@ -69,7 +69,12 @@ export default function TutorDashboard() {
             {statCards.map((stat) => {
               const Icon = stat.icon;
               return (
-                <Card key={stat.title} className="hover:shadow-lg transition-shadow" data-testid={stat.testId}>
+                <Card
+                  key={stat.title}
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={stat.onClick}
+                  data-testid={stat.testId}
+                >
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-gray-600">
                       {stat.title}
