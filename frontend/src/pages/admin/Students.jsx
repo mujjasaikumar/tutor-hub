@@ -148,6 +148,26 @@ export default function AdminStudents() {
     }
   };
 
+  const downloadSampleCSV = async () => {
+    try {
+      const response = await api.get('/students/sample-csv', {
+        responseType: 'blob',
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'students_sample.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success('Sample CSV downloaded!');
+    } catch (error) {
+      toast.error('Failed to download sample CSV');
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'paid': return 'bg-green-100 text-green-700';
