@@ -696,12 +696,13 @@ async def upload_students_excel(
             if not existing:
                 user_data = UserCreate(
                     email=student.email,
-                    password="student123",
+                    password="Student@123",
                     name=student.name,
                     role=UserRole.STUDENT,
                     phone=student.phone,
                     whatsapp=student.whatsapp,
-                    institute_id=student.institute_id
+                    institute_id=student.institute_id,
+                    must_change_password=True
                 )
                 user_dict = user_data.model_dump()
                 hashed_pw = hash_password(user_dict.pop("password"))
