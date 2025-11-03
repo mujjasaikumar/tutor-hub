@@ -1,5 +1,5 @@
 """Model package initialization - exports all schemas."""
-from .user import (
+from models.user import (
     UserRoleEnum,
     UserCreateSchema,
     UserResponseSchema,
@@ -8,43 +8,43 @@ from .user import (
     TokenResponseSchema,
     TutorUpdateSchema
 )
-from .batch import (
+from models.batch import (
     BatchCreateSchema,
     BatchResponseSchema,
     BatchUpdateSchema,
     BatchActivitySchema
 )
-from .student import (
+from models.student import (
     StudentCreateSchema,
     StudentResponseSchema,
     StudentUpdateSchema
 )
-from .payment import (
+from models.payment import (
     PaymentCreateSchema,
     PaymentResponseSchema
 )
-from .class_schedule import (
+from models.class_schedule import (
     ClassScheduleStatusEnum,
     ClassScheduleCreateSchema,
     ClassScheduleResponseSchema,
     ClassScheduleUploadSchema
 )
-from .study_material import (
+from models.study_material import (
     StudyMaterialCreateSchema,
     StudyMaterialResponseSchema
 )
-from .homework import (
+from models.homework import (
     HomeworkCreateSchema,
     HomeworkResponseSchema,
     HomeworkSubmissionCreateSchema,
     HomeworkSubmissionResponseSchema
 )
-from .enquiry import (
+from models.enquiry import (
     EnquiryStatusEnum,
     EnquiryCreateSchema,
     EnquiryResponseSchema
 )
-from .invite import (
+from models.invite import (
     InviteStatusEnum,
     InviteCreateSchema,
     InviteResponseSchema
