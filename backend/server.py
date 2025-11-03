@@ -893,6 +893,31 @@ async def create_enquiry(enquiry_data: EnquiryCreate):
     
     return enquiry
 
+@api_router.post("/contact")
+async def contact_form(contact_data: dict):
+    """Public endpoint for contact form submissions"""
+    # Store in enquiries collection
+    admin = await db.users.find_one({"role": UserRole.ADMIN}, {"_id": 0})
+    institute_id = admin["id"] if admin else "default"
+    
+    enquiry = Enquiry(
+        id=str(uuid.uuid4()),
+        name=contact_data.get("name", ""),
+        email=contact_data.get("email", ""),
+        phone=contact_data.get("phone", ""),
+        interested_subject=contact_data.get("subject", "Contact Form"),
+        notes=contact_data.get("message", ""),
+        status="new",
+        institute_id=institute_id
+    )
+    
+    doc = enquiry.model_dump()
+    doc["created_at"] = doc["created_at"].isoformat()
+    
+    await db.enquiries.insert_one(doc)
+    
+    return {"message": "Contact form submitted successfully", "id": enquiry.id}
+
 @api_router.get("/enquiries", response_model=List[Enquiry])
 async def get_enquiries(
     status: Optional[str] = None,
