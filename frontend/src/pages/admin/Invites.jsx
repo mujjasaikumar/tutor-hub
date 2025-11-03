@@ -72,6 +72,51 @@ export default function AdminInvites() {
     }
   };
 
+  const handleBulkUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!selectedBatchForBulk) {
+      toast.error('Please select a batch first');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      await api.post(`/invites/bulk?batch_id=${selectedBatchForBulk}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      
+      toast.success('Bulk invites sent successfully!');
+      setBulkDialogOpen(false);
+      fetchInvites();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to send bulk invites');
+    }
+  };
+
+  const downloadSampleCSV = async () => {
+    try {
+      const response = await api.get('/invites/sample-csv', {
+        responseType: 'blob',
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'bulk_invites_sample.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success('Sample CSV downloaded!');
+    } catch (error) {
+      toast.error('Failed to download sample CSV');
+    }
+  };
+
   const copyInviteCode = (code) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
