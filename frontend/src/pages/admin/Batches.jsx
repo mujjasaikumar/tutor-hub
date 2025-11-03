@@ -249,8 +249,31 @@ export default function AdminBatches() {
             {batches.map((batch) => (
               <Card key={batch.id} className="hover:shadow-lg transition-shadow" data-testid={`batch-card-${batch.id}`}>
                 <CardHeader>
-                  <CardTitle className="text-lg">{batch.name}</CardTitle>
-                  <p className="text-sm text-gray-600">{batch.subject}</p>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg">{batch.name}</CardTitle>
+                      <p className="text-sm text-gray-600">{batch.subject}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEdit(batch)}
+                        data-testid={`edit-batch-${batch.id}`}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => openDeleteDialog(batch.id)}
+                        className="text-red-600 hover:text-red-700"
+                        data-testid={`delete-batch-${batch.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="text-sm">
@@ -272,6 +295,14 @@ export default function AdminBatches() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        title="Delete Batch"
+        description="Are you sure you want to delete this batch? This action cannot be undone."
+      />
     </Layout>
   );
 }
