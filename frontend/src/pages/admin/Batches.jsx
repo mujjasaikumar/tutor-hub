@@ -49,9 +49,8 @@ export default function AdminBatches() {
 
   const fetchTutors = async () => {
     try {
-      // This would need a tutors endpoint, for now we'll handle it simply
-      // In production, add GET /users?role=tutor endpoint
-      setTutors([]);
+      const response = await api.get('/tutors');
+      setTutors(response.data);
     } catch (error) {
       console.error('Failed to fetch tutors:', error);
     }
@@ -61,26 +60,75 @@ export default function AdminBatches() {
     e.preventDefault();
 
     try {
-      await api.post('/batches', {
-        ...formData,
-        start_date: new Date(formData.start_date).toISOString(),
-        duration_months: parseInt(formData.duration_months),
-      });
+      if (editMode) {
+        await api.put(`/batches/${selectedBatch.id}`, {
+          ...formData,
+          duration_months: parseInt(formData.duration_months),
+        });
+        toast.success('Batch updated successfully!');
+      } else {
+        await api.post('/batches', {
+          ...formData,
+          start_date: new Date(formData.start_date).toISOString(),
+          duration_months: parseInt(formData.duration_months),
+        });
+        toast.success('Batch created successfully!');
+      }
       
-      toast.success('Batch created successfully!');
       setDialogOpen(false);
       fetchBatches();
-      setFormData({
-        name: '',
-        subject: '',
-        tutor_id: '',
-        timing: '',
-        duration_months: 3,
-        start_date: '',
-      });
+      resetForm();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create batch');
+      toast.error(error.response?.data?.detail || `Failed to ${editMode ? 'update' : 'create'} batch`);
     }
+  };
+
+  const handleEdit = (batch) => {
+    setSelectedBatch(batch);
+    setFormData({
+      name: batch.name,
+      subject: batch.subject,
+      tutor_id: batch.tutor_id,
+      timing: batch.timing,
+      duration_months: batch.duration_months,
+      start_date: new Date(batch.start_date).toISOString().split('T')[0],
+      days_per_week: batch.days_per_week || 3,
+      class_time: batch.class_time || '10:00 AM',
+    });
+    setEditMode(true);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await api.delete(`/batches/${batchToDelete}`);
+      toast.success('Batch deleted successfully!');
+      fetchBatches();
+      setDeleteDialogOpen(false);
+      setBatchToDelete(null);
+    } catch (error) {
+      toast.error('Failed to delete batch');
+    }
+  };
+
+  const openDeleteDialog = (batchId) => {
+    setBatchToDelete(batchId);
+    setDeleteDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      subject: '',
+      tutor_id: '',
+      timing: '',
+      duration_months: 3,
+      start_date: '',
+      days_per_week: 3,
+      class_time: '10:00 AM',
+    });
+    setEditMode(false);
+    setSelectedBatch(null);
   };
 
   return (
