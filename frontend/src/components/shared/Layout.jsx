@@ -19,6 +19,7 @@ export default function Layout({ children, role }) {
     { path: '/admin/batches', label: 'Batches', icon: BookOpen },
     { path: '/admin/tutors', label: 'Tutors', icon: Users },
     { path: '/admin/students', label: 'Students', icon: Users },
+    { path: '/admin/schedule', label: 'Schedule', icon: Calendar },
     { path: '/admin/payments', label: 'Payments', icon: CreditCard },
     { path: '/admin/enquiries', label: 'Enquiries', icon: Users },
     { path: '/admin/invites', label: 'Invites', icon: Users },
