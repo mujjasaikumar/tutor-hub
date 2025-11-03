@@ -1,6 +1,6 @@
 """Database connection and initialization."""
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-from .config import DatabaseConfig
+from config import DatabaseConfig
 
 class DatabaseConnection:
     """Manages MongoDB connection lifecycle."""
