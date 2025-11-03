@@ -2,8 +2,8 @@
 from typing import List, Optional
 from datetime import datetime, timezone
 
-from ..database import database
-from ..models import (
+from database import database
+from models import (
     BatchCreateSchema,
     BatchResponseSchema,
     BatchUpdateSchema

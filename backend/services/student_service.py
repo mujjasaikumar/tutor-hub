@@ -2,8 +2,8 @@
 from typing import List, Optional
 from datetime import datetime
 
-from ..database import database
-from ..models import (
+from database import database
+from models import (
     StudentCreateSchema,
     StudentResponseSchema,
     StudentUpdateSchema,

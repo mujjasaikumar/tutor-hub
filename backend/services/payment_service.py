@@ -2,8 +2,8 @@
 from typing import List, Optional
 from datetime import datetime
 
-from ..database import database
-from ..models import PaymentCreateSchema, PaymentResponseSchema
+from database import database
+from models import PaymentCreateSchema, PaymentResponseSchema
 from .student_service import student_management_service
 
 class PaymentManagementService:

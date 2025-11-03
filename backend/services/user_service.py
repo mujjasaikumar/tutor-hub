@@ -2,8 +2,8 @@
 from typing import List, Optional
 from datetime import datetime
 
-from ..database import database
-from ..models import UserCreateSchema, UserResponseSchema, TutorUpdateSchema
+from database import database
+from models import UserCreateSchema, UserResponseSchema, TutorUpdateSchema
 from .auth_service import password_hashing_service
 
 class UserManagementService:
