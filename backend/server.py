@@ -425,6 +425,30 @@ async def change_password(
     
     return {"message": "Password changed successfully"}
 
+@api_router.put("/users/profile")
+async def update_profile(
+    profile_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update user profile information"""
+    # Remove fields that shouldn't be updated via this endpoint
+    disallowed_fields = ["id", "role", "institute_id", "password", "created_at", "must_change_password"]
+    update_data = {k: v for k, v in profile_data.items() if k not in disallowed_fields and v is not None}
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No valid fields to update")
+    
+    # Update user in database
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": update_data}
+    )
+    
+    # Get updated user
+    updated_user = await db.users.find_one({"id": current_user["id"]}, {"_id": 0, "password": 0})
+    
+    return {"message": "Profile updated successfully", "user": updated_user}
+
 # ============ BATCH ROUTES ============
 
 @api_router.post("/batches", response_model=Batch)
