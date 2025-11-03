@@ -19,6 +19,8 @@ export default function AdminStudents() {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
   const [selectedBatch, setSelectedBatch] = useState('');
   const [formData, setFormData] = useState({
     name: '',
