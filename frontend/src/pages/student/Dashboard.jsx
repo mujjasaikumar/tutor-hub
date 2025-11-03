@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/shared/Layout';
+import NextClassCard from '@/components/shared/NextClassCard';
 import api from '@/api/axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Calendar, FileText, IndianRupee } from 'lucide-react';
 
 export default function StudentDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
+  const [nextClass, setNextClass] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchStats();
+    fetchNextClass();
   }, []);
 
   const fetchStats = async () => {
@@ -20,6 +25,24 @@ export default function StudentDashboard() {
       console.error('Failed to fetch stats:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchNextClass = async () => {
+    try {
+      const response = await api.get('/classes');
+      const classes = response.data;
+      
+      const now = new Date();
+      const upcomingClasses = classes
+        .filter(cls => new Date(cls.class_date) > now)
+        .sort((a, b) => new Date(a.class_date) - new Date(b.class_date));
+      
+      if (upcomingClasses.length > 0) {
+        setNextClass(upcomingClasses[0]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch next class:', error);
     }
   };
 
@@ -47,7 +70,11 @@ export default function StudentDashboard() {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="hover:shadow-lg transition-shadow" data-testid="batch-card">
+              <Card
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate('/student/classes')}
+                data-testid="batch-card"
+              >
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600">
                     My Batch
@@ -61,10 +88,14 @@ export default function StudentDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow" data-testid="classes-card">
+              <Card
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate('/student/classes')}
+                data-testid="classes-card"
+              >
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600">
-                    Today's Classes
+                    Scheduled Classes
                   </CardTitle>
                   <div className="bg-purple-500 p-2 rounded-lg">
                     <Calendar className="w-5 h-5 text-white" />
@@ -75,7 +106,11 @@ export default function StudentDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow" data-testid="homework-card">
+              <Card
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate('/student/homework')}
+                data-testid="homework-card"
+              >
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600">
                     Pending Homework
@@ -105,6 +140,8 @@ export default function StudentDashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            <NextClassCard classData={nextClass} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
