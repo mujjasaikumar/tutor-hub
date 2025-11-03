@@ -14,6 +14,7 @@ import AdminPayments from "@/pages/admin/Payments";
 import AdminTutors from "@/pages/admin/Tutors";
 import AdminEnquiries from "@/pages/admin/Enquiries";
 import AdminInvites from "@/pages/admin/Invites";
+import AdminSchedule from "@/pages/admin/Schedule";
 import TutorDashboard from "@/pages/tutor/Dashboard";
 import TutorClasses from "@/pages/tutor/Classes";
 import TutorMaterials from "@/pages/tutor/Materials";
