@@ -1000,6 +1000,49 @@ async def accept_invite(invite_code: str, password: str):
     
     return Token(access_token=token, token_type="bearer", user=User(**doc))
 
+@api_router.post("/invites/bulk")
+async def bulk_invite_students(
+    batch_id: str,
+    file: UploadFile = File(...),
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    """Bulk invite students for a batch via CSV"""
+    batch = await db.batches.find_one({"id": batch_id}, {"_id": 0})
+    if not batch:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    
+    try:
+        contents = await file.read()
+        df = pd.read_csv(io.BytesIO(contents))
+        
+        if "email" not in df.columns:
+            raise HTTPException(status_code=400, detail="CSV must have 'email' column")
+        
+        invites_created = []
+        
+        for _, row in df.iterrows():
+            email = str(row["email"]).strip()
+            
+            invite = Invite(
+                email=email,
+                role=UserRole.STUDENT,
+                batch_id=batch_id,
+                batch_name=batch["name"],
+                invite_code=generate_invite_code(),
+                institute_id=current_user["institute_id"] or current_user["id"]
+            )
+            
+            doc = invite.model_dump()
+            doc["created_at"] = doc["created_at"].isoformat()
+            
+            await db.invites.insert_one(doc)
+            invites_created.append(email)
+        
+        return {"message": f"Successfully sent {len(invites_created)} invites", "emails": invites_created}
+    
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 # ============ CLASS SCHEDULE CSV UPLOAD ============
 
 @api_router.get("/schedule/sample-csv")
