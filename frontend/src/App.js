@@ -92,6 +92,30 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/tutors"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminTutors />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/enquiries"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminEnquiries />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/invites"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminInvites />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Tutor Routes */}
           <Route
