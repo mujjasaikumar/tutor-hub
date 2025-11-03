@@ -173,6 +173,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/tutor/profile"
+            element={
+              <ProtectedRoute allowedRoles={["tutor"]}>
+                <TutorProfile />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Shared Routes */}
           <Route
