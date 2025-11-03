@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import List
 import jwt
 
-from ..services import user_authentication_service, jwt_token_service
+from services import user_authentication_service, jwt_token_service
 
 security_scheme = HTTPBearer()
 

@@ -2,14 +2,14 @@
 from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime
 
-from ..models import (
+from models import (
     UserCreateSchema,
     UserLoginSchema,
     PasswordChangeSchema,
     TokenResponseSchema,
     UserResponseSchema
 )
-from ..services import (
+from services import (
     user_authentication_service,
     user_management_service,
     jwt_token_service
