@@ -31,21 +31,24 @@ export default function TutorDashboard() {
       value: stats?.total_batches || 0,
       icon: BookOpen,
       color: 'bg-blue-500',
-      testId: 'total-batches'
+      testId: 'total-batches',
+      onClick: () => navigate('/tutor/batches')
     },
     {
       title: 'Total Students',
       value: stats?.total_students || 0,
       icon: Users,
       color: 'bg-green-500',
-      testId: 'total-students'
+      testId: 'total-students',
+      onClick: () => navigate('/tutor/students')
     },
     {
-      title: "Today's Classes",
+      title: 'Scheduled Classes',
       value: stats?.today_classes || 0,
       icon: Calendar,
       color: 'bg-purple-500',
-      testId: 'today-classes'
+      testId: 'today-classes',
+      onClick: () => navigate('/tutor/classes')
     },
   ];
 
