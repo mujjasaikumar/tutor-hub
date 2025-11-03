@@ -5,9 +5,9 @@ from typing import Optional
 import jwt
 import secrets
 
-from ..config import SecurityConfig
-from ..database import database
-from ..models import UserResponseSchema
+from config import SecurityConfig
+from database import database
+from models import UserResponseSchema
 
 class PasswordHashingService:
     """Service for password hashing and verification."""
