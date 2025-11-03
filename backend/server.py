@@ -463,6 +463,109 @@ async def get_batch(batch_id: str, current_user: dict = Depends(get_current_user
     
     return Batch(**batch)
 
+@api_router.put("/batches/{batch_id}")
+async def update_batch(
+    batch_id: str,
+    batch_update: BatchUpdate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    update_data = {k: v for k, v in batch_update.model_dump().items() if v is not None}
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    # If tutor_id changed, update tutor_name
+    if "tutor_id" in update_data:
+        tutor = await db.users.find_one({"id": update_data["tutor_id"]}, {"_id": 0})
+        if tutor:
+            update_data["tutor_name"] = tutor["name"]
+    
+    result = await db.batches.update_one({"id": batch_id}, {"$set": update_data})
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    
+    return {"message": "Batch updated successfully"}
+
+@api_router.delete("/batches/{batch_id}")
+async def delete_batch(
+    batch_id: str,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    result = await db.batches.delete_one({"id": batch_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    
+    return {"message": "Batch deleted successfully"}
+
+# ============ TUTOR MANAGEMENT ROUTES ============
+
+@api_router.get("/tutors", response_model=List[User])
+async def get_tutors(current_user: dict = Depends(require_role([UserRole.ADMIN]))):
+    institute_id = current_user["institute_id"] or current_user["id"]
+    tutors = await db.users.find({"role": UserRole.TUTOR, "institute_id": institute_id}, {"_id": 0, "password": 0}).to_list(1000)
+    
+    for tutor in tutors:
+        if isinstance(tutor["created_at"], str):
+            tutor["created_at"] = datetime.fromisoformat(tutor["created_at"])
+    
+    return tutors
+
+@api_router.post("/tutors", response_model=User)
+async def create_tutor(
+    tutor_data: UserCreate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    if tutor_data.role != UserRole.TUTOR:
+        raise HTTPException(status_code=400, detail="Role must be tutor")
+    
+    existing = await db.users.find_one({"email": tutor_data.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    tutor_dict = tutor_data.model_dump()
+    hashed_pw = hash_password(tutor_dict.pop("password"))
+    tutor_dict["institute_id"] = current_user["institute_id"] or current_user["id"]
+    
+    tutor = User(**tutor_dict)
+    doc = tutor.model_dump()
+    doc["password"] = hashed_pw
+    doc["created_at"] = doc["created_at"].isoformat()
+    
+    await db.users.insert_one(doc)
+    return tutor
+
+@api_router.put("/tutors/{tutor_id}")
+async def update_tutor(
+    tutor_id: str,
+    tutor_update: TutorUpdate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    update_data = {k: v for k, v in tutor_update.model_dump().items() if v is not None}
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    result = await db.users.update_one({"id": tutor_id, "role": UserRole.TUTOR}, {"$set": update_data})
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Tutor not found")
+    
+    return {"message": "Tutor updated successfully"}
+
+@api_router.delete("/tutors/{tutor_id}")
+async def delete_tutor(
+    tutor_id: str,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    result = await db.users.delete_one({"id": tutor_id, "role": UserRole.TUTOR})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Tutor not found")
+    
+    return {"message": "Tutor deleted successfully"}
+
 # ============ STUDENT ROUTES ============
 
 @api_router.post("/students", response_model=Student)
