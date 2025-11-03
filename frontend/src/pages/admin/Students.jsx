@@ -293,7 +293,7 @@ export default function AdminStudents() {
                     />
                   </div>
                   <Button type="submit" className="w-full" data-testid="submit-student-button">
-                    Add Student
+                    {editMode ? 'Update Student' : 'Add Student'}
                   </Button>
                 </form>
               </DialogContent>
