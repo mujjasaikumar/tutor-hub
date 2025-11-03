@@ -18,10 +18,13 @@ import AdminSchedule from "@/pages/admin/Schedule";
 import TutorDashboard from "@/pages/tutor/Dashboard";
 import TutorClasses from "@/pages/tutor/Classes";
 import TutorMaterials from "@/pages/tutor/Materials";
+import TutorBatchesList from "@/pages/tutor/BatchesList";
+import TutorStudentsList from "@/pages/tutor/StudentsList";
 import StudentDashboard from "@/pages/student/Dashboard";
 import StudentClasses from "@/pages/student/Classes";
 import StudentMaterials from "@/pages/student/Materials";
 import StudentHomework from "@/pages/student/Homework";
+import BatchDetails from "@/pages/shared/BatchDetails";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
