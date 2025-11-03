@@ -1051,12 +1051,40 @@ async def download_sample_csv():
     from fastapi.responses import StreamingResponse
     import io
     
-    sample_data = "date,time,topic\n2025-01-15,10:00 AM,Introduction to Algebra\n2025-01-17,10:00 AM,Quadratic Equations\n"
+    sample_data = "date,time,topic\n"
     
     return StreamingResponse(
         io.BytesIO(sample_data.encode()),
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=class_schedule_sample.csv"}
+    )
+
+@api_router.get("/students/sample-csv")
+async def download_students_sample_csv():
+    """Download sample CSV template for student upload"""
+    from fastapi.responses import StreamingResponse
+    import io
+    
+    sample_data = "name,email,phone,whatsapp,total_fees\n"
+    
+    return StreamingResponse(
+        io.BytesIO(sample_data.encode()),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=students_sample.csv"}
+    )
+
+@api_router.get("/invites/sample-csv")
+async def download_invites_sample_csv():
+    """Download sample CSV template for bulk invites"""
+    from fastapi.responses import StreamingResponse
+    import io
+    
+    sample_data = "email\n"
+    
+    return StreamingResponse(
+        io.BytesIO(sample_data.encode()),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=bulk_invites_sample.csv"}
     )
 
 @api_router.post("/schedule/upload-csv")
