@@ -15,6 +15,8 @@ export default function AdminInvites() {
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [selectedBatchForBulk, setSelectedBatchForBulk] = useState('');
   const [copiedCode, setCopiedCode] = useState(null);
   const [formData, setFormData] = useState({
     email: '',
