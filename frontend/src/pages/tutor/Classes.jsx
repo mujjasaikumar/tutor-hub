@@ -74,6 +74,26 @@ export default function TutorClasses() {
     }
   };
 
+  const handleMarkAbsent = async () => {
+    try {
+      const params = rescheduleDate ? `?reschedule_date=${rescheduleDate}` : '';
+      await api.patch(`/classes/${selectedClass.id}/mark-absent${params}`);
+      
+      toast.success(rescheduleDate ? 'Class marked absent and rescheduled!' : 'Class marked as absent');
+      setAbsentDialogOpen(false);
+      setSelectedClass(null);
+      setRescheduleDate('');
+      fetchClasses();
+    } catch (error) {
+      toast.error('Failed to mark absent');
+    }
+  };
+
+  const openAbsentDialog = (classItem) => {
+    setSelectedClass(classItem);
+    setAbsentDialogOpen(true);
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-700';
