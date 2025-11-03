@@ -81,6 +81,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     user: User
+    must_change_password: Optional[bool] = False
 
 class Batch(BaseModel):
     model_config = ConfigDict(extra="ignore")
