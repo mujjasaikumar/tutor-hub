@@ -65,7 +65,7 @@ app = create_application()
 
 # Temporarily mount old routes for backward compatibility
 # These will be progressively refactored into the new structure
-from .server_old import (
+from server_old import (
     # Batch routes
     create_batch, get_batches, get_batch, update_batch, delete_batch,
     upload_student_csv, download_sample_student_csv,
