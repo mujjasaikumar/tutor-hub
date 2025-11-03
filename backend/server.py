@@ -1381,6 +1381,8 @@ async def update_class(
     class_id: str,
     status: Optional[str] = None,
     class_date: Optional[datetime] = None,
+    class_time: Optional[str] = None,
+    topic: Optional[str] = None,
     current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.TUTOR]))
 ):
     update_data = {}
@@ -1388,11 +1390,15 @@ async def update_class(
         update_data["status"] = status
     if class_date:
         update_data["class_date"] = class_date.isoformat()
+    if class_time:
+        update_data["class_time"] = class_time
+    if topic:
+        update_data["topic"] = topic
     
     if not update_data:
         raise HTTPException(status_code=400, detail="No update data provided")
     
-    result = await db.classes.update_one({"id": class_id}, {"$set": update_data})
+    result = await db.classes.update_one({" id": class_id}, {"$set": update_data})
     
     if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Class not found")
