@@ -78,7 +78,17 @@ export default function AdminDashboard() {
             {statCards.map((stat) => {
               const Icon = stat.icon;
               return (
-                <Card key={stat.title} className="hover:shadow-lg transition-shadow" data-testid={stat.testId}>
+                <Card
+                  key={stat.title}
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => {
+                    if (stat.title === 'Total Batches') navigate('/admin/batches');
+                    else if (stat.title === 'Total Students') navigate('/admin/students');
+                    else if (stat.title === 'Total Tutors') navigate('/admin/tutors');
+                    else if (stat.title === 'Total Revenue' || stat.title === 'Pending Fees') navigate('/admin/payments');
+                  }}
+                  data-testid={stat.testId}
+                >
                   <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-gray-600">
                       {stat.title}
