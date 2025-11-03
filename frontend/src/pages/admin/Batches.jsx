@@ -16,6 +16,10 @@ export default function AdminBatches() {
   const [tutors, setTutors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [batchToDelete, setBatchToDelete] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     subject: '',
@@ -23,6 +27,8 @@ export default function AdminBatches() {
     timing: '',
     duration_months: 3,
     start_date: '',
+    days_per_week: 3,
+    class_time: '10:00 AM',
   });
 
   useEffect(() => {
