@@ -117,6 +117,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/schedule"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminSchedule />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Tutor Routes */}
           <Route
