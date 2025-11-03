@@ -215,6 +215,70 @@ class HomeworkSubmissionCreate(BaseModel):
     homework_id: str
     submission_link: str
 
+class Enquiry(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    email: EmailStr
+    phone: str
+    whatsapp: Optional[str] = None
+    interested_subject: Optional[str] = None
+    status: str = "new"  # new, contacted, enrolled, rejected
+    notes: Optional[str] = None
+    institute_id: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class EnquiryCreate(BaseModel):
+    name: str
+    email: EmailStr
+    phone: str
+    whatsapp: Optional[str] = None
+    interested_subject: Optional[str] = None
+    notes: Optional[str] = None
+
+class Invite(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    email: EmailStr
+    role: str  # tutor, student
+    batch_id: Optional[str] = None
+    batch_name: Optional[str] = None
+    invite_code: str
+    status: str = "pending"  # pending, accepted
+    institute_id: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class InviteCreate(BaseModel):
+    email: EmailStr
+    role: str
+    batch_id: Optional[str] = None
+
+class BatchUpdate(BaseModel):
+    name: Optional[str] = None
+    subject: Optional[str] = None
+    tutor_id: Optional[str] = None
+    timing: Optional[str] = None
+    duration_months: Optional[int] = None
+    days_per_week: Optional[int] = None
+    class_time: Optional[str] = None
+
+class StudentUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    whatsapp: Optional[str] = None
+    batch_id: Optional[str] = None
+    total_fees: Optional[float] = None
+
+class TutorUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+
+class ClassScheduleUpload(BaseModel):
+    batch_id: str
+    schedule_data: List[dict]  # List of {date, time, topic}
+
 # ============ UTILITY FUNCTIONS ============
 
 def hash_password(password: str) -> str:
