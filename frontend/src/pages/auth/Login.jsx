@@ -126,6 +126,12 @@ export default function Login() {
           </div>
         </div>
       </div>
+
+      <ChangePasswordModal
+        open={showPasswordChange}
+        onSuccess={handlePasswordChanged}
+        canClose={false}
+      />
     </div>
   );
 }
