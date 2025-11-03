@@ -400,6 +400,24 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         current_user["created_at"] = datetime.fromisoformat(current_user["created_at"])
     return User(**current_user)
 
+@api_router.post("/auth/change-password")
+async def change_password(
+    password_data: PasswordChange,
+    current_user: dict = Depends(get_current_user)
+):
+    user = await db.users.find_one({"id": current_user["id"]})
+    
+    if not verify_password(password_data.old_password, user["password"]):
+        raise HTTPException(status_code=400, detail="Invalid old password")
+    
+    new_hashed = hash_password(password_data.new_password)
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": {"password": new_hashed, "must_change_password": False}}
+    )
+    
+    return {"message": "Password changed successfully"}
+
 # ============ BATCH ROUTES ============
 
 @api_router.post("/batches", response_model=Batch)
