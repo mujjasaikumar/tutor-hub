@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import api from '@/api/axios';
 import useAuthStore from '@/store/authStore';
+import ChangePasswordModal from '@/components/shared/ChangePasswordModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +14,7 @@ export default function Login() {
   const setAuth = useAuthStore((state) => state.setAuth);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,20 +22,35 @@ export default function Login() {
 
     try {
       const response = await api.post('/auth/login', formData);
-      const { access_token, user } = response.data;
+      const { access_token, user, must_change_password } = response.data;
       
       setAuth(user, access_token);
-      toast.success('Login successful!');
       
-      // Redirect based on role
-      if (user.role === 'admin') navigate('/admin/dashboard');
-      else if (user.role === 'tutor') navigate('/tutor/dashboard');
-      else if (user.role === 'student') navigate('/student/dashboard');
+      if (must_change_password) {
+        setShowPasswordChange(true);
+        toast.info('Please change your temporary password');
+      } else {
+        toast.success('Login successful!');
+        redirectUser(user.role);
+      }
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Login failed');
     } finally {
       setLoading(false);
     }
+  };
+
+  const redirectUser = (role) => {
+    if (role === 'admin') navigate('/admin/dashboard');
+    else if (role === 'tutor') navigate('/tutor/dashboard');
+    else if (role === 'student') navigate('/student/dashboard');
+  };
+
+  const handlePasswordChanged = () => {
+    const { user } = useAuthStore.getState();
+    setShowPasswordChange(false);
+    toast.success('Password changed! Redirecting...');
+    setTimeout(() => redirectUser(user.role), 1000);
   };
 
   return (
