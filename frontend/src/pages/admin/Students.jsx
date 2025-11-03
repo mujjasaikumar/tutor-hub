@@ -365,6 +365,27 @@ export default function AdminStudents() {
                             {student.payment_status}
                           </span>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEdit(student)}
+                              data-testid={`edit-student-${student.id}`}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openDeleteDialog(student.id)}
+                              className="text-red-600 hover:text-red-700"
+                              data-testid={`delete-student-${student.id}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
