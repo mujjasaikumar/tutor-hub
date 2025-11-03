@@ -395,6 +395,14 @@ export default function AdminStudents() {
           </Card>
         )}
       </div>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        title="Delete Student"
+        description="Are you sure you want to delete this student? This action cannot be undone."
+      />
     </Layout>
   );
 }
