@@ -1,0 +1,65 @@
+<analysis>
+The AI engineer successfully initiated the TutorHub project, adapting the tech stack from Django/PostgreSQL to FastAPI/MongoDB/React due to environment constraints. Development progressed iteratively, starting with core authentication, batch, student, and payment features. The process involved multiple rounds of user feedback, leading to significant enhancements such as CRUD operations for various entities, an invite system, CSV import/export with sample downloads, and complex class scheduling logic. The AI demonstrated problem-solving by identifying and fixing a JSX syntax error. The current state involves debugging a crucial password change modal and addressing dashboard display inconsistencies. The trajectory highlights a robust, iterative development approach with a focus on comprehensive feature implementation and bug resolution.
+</analysis>
+
+<product_requirements>
+TutorHub is a full-stack SaaS CRM + LMS-lite platform for tutors/coaching institutes, supporting Admin, Tutor, and Student roles with distinct dashboards and permissions. Key features include JWT authentication with forgot password and email verification, an onboarding flow, and role-based routes. Core functionalities encompass:
+-   **Admin Dashboard**: Overview of batches, students, fees, classes, revenue, WhatsApp/Slack logs.
+-   **Tutor Dashboard**: Today’s classes, student lists, homework/materials upload, announcements, payments.
+-   **Student Dashboard**: Class details, Slack integration, homework/materials access, payment status.
+-   **Management**: CRUD for batches (name, subject, timing, tutor, auto Slack channel/invites) and students (manual/Excel add, profiles, payments).
+-   **Payment Tracking**: Records, status, reminders, reports.
+-   **Class Scheduling**: Recurring schedules, auto-generation, rescheduling, reminders.
+-   **LMS-lite**: Study materials (Google Drive links with expiry), homework (tutor upload, student submission).
+-   **Notifications**: Async WhatsApp, Slack, Email (Celery/Redis blueprint).
+-   **Subscription & Billing**: Razorpay integration (blueprint).
+-   **Settings**: Institute configuration, API keys, tutor management, data export.
+
+Implementation so far includes the core auth, batch, student, and payment features, enhanced with CRUD for students/batches, an admin invite system, CSV upload for students/classes (with sample headers and optional dates), temporary student passwords with forced first-login change, and basic dashboard card clickability. Most recently, reusable components for class display and dashboards were added, and the AI is currently debugging a student password change modal and ensuring consistent list views across dashboards.
+</product_requirements>
+
+<key_technical_concepts>
+-   **FastAPI**: Python web framework for backend APIs.
+-   **MongoDB**: NoSQL database for data storage.
+-   **React.js**: Frontend library for building UIs.
+-   **Tailwind CSS**: Utility-first CSS framework for styling.
+-   **Zustand**: Lightweight global state management for React.
+-   **JWT (JSON Web Tokens)**: Authentication for secure API access.
+-   ****: HTTP client for API calls from frontend.
+-   **Pydantic**: Data validation and settings management in Python.
+-   **FastAPI Background Tasks**: For asynchronous operations.
+</key_technical_concepts>
+
+<code_architecture>
+The application follows a standard full-stack architecture with a FastAPI backend and a React frontend.
+
+
+
+-   : The core FastAPI application. It defines API endpoints for authentication, user management (admin, tutor, student CRUD), batches, classes, payments, enquiries, invites, and handles CSV uploads/downloads. This file has been extensively modified to add new routes and update existing ones for various features like batch activities, bulk invites, and class scheduling with optional dates. It also manages the  flag for students.
+-   : Contains environment variables like . Modified to ensure  is included in requirements.txt.
+-   : The main React component responsible for setting up routing using . It has been updated multiple times to include new routes for admin, tutor, and student dashboards, as well as specific feature pages like , , , , , , and .
+-   : A Zustand store managing the application's authentication state, including user details and login/logout functionality. Critical for maintaining session and user role information.
+-   : A reusable layout component that wraps all application pages, providing consistent navigation and structure. It was updated to include new navigation links corresponding to new features and roles.
+-   : Handles user login. It was modified to incorporate the  and conditionally render it if a user (specifically a student) has a  flag set after initial login.
+-   : A newly created modal component used to force students to change their temporary password upon their first login.
+-    & : These pages manage student and batch data respectively. They were updated to include CRUD operations, utilizing the  for delete actions and providing sample CSV download functionality.
+-   : Displays class schedules for tutors. It was converted from a card layout to a table/list view, incorporating , , and conditional action buttons (Join Now/Watch Recording) based on class status. It also includes functionality for marking tutor absence.
+-   : A reusable component designed to display the next upcoming class with a countdown timer or a date/time stamp, used across Admin, Tutor, and Student dashboards.
+-   : A new utility file to encapsulate logic for determining class status (Live, Completed, Upcoming) and other class-related helper functions.
+</code_architecture>
+
+<pending_tasks>
+-   **Fix Password Change Modal**: Currently being debugged, specifically checking the backend's  flag.
+-   **Admin Dashboard - List Views**: Convert Batches and Students displays to list format, similar to the Tutor dashboard.
+-   **Student Dashboard - List Views**: Implement list format for Batches, Students, and Classes displays.
+-   **Admin Batch Activities Page**: Create a dedicated page for batch details, including lists of classes, students, reports, payment summaries, Slack channel link, and bulk student invite.
+-   **Dashboard Card Clickability**: Ensure all dashboard cards across Admin, Tutor, and Student dashboards redirect to their respective detailed list pages (e.g., Total Batches → list of batches).
+</pending_tasks>
+
+<current_work>
+The AI engineer is currently addressing a critical bug where the Password Change Modal is not working as expected for students on their first login. This feature is intended to force students to change their temporary password (). The investigation began by reviewing the frontend logic in  to ensure the modal's conditional rendering and interaction were correctly implemented. Finding no obvious issues on the frontend side in the latest check, the AI has now shifted its focus to the backend. The next step in debugging is to verify that the backend is correctly returning the  flag in the user's authentication response, which is crucial for triggering the modal on the frontend. This is a high-priority bug as it affects the core security and onboarding flow for students.
+</current_work>
+
+<optional_next_step>
+Check and fix the backend API to ensure the  flag is correctly returned in the user's login response.
+</optional_next_step>
