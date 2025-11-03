@@ -21,7 +21,7 @@ class DatabaseConnection:
     
     def get_database(self) -> AsyncIOMotorDatabase:
         """Get database instance."""
-        if not self.database:
+        if self.database is None:
             self.connect_to_database()
         return self.database
 
