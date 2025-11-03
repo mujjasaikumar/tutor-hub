@@ -722,6 +722,359 @@ async def get_student(student_id: str, current_user: dict = Depends(get_current_
     
     return Student(**student)
 
+@api_router.put("/students/{student_id}")
+async def update_student(
+    student_id: str,
+    student_update: StudentUpdate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.TUTOR]))
+):
+    update_data = {k: v for k, v in student_update.model_dump().items() if v is not None}
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    # If batch_id changed, update batch_name
+    if "batch_id" in update_data:
+        batch = await db.batches.find_one({"id": update_data["batch_id"]}, {"_id": 0})
+        if batch:
+            update_data["batch_name"] = batch["name"]
+    
+    result = await db.students.update_one({"id": student_id}, {"$set": update_data})
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Student not found")
+    
+    # Also update user account if email changed
+    if "email" in update_data:
+        await db.users.update_one(
+            {"email": (await db.students.find_one({"id": student_id}))["email"], "role": UserRole.STUDENT},
+            {"$set": {"email": update_data["email"]}}
+        )
+    
+    return {"message": "Student updated successfully"}
+
+@api_router.delete("/students/{student_id}")
+async def delete_student(
+    student_id: str,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    student = await db.students.find_one({"id": student_id}, {"_id": 0})
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    
+    # Delete student record
+    await db.students.delete_one({"id": student_id})
+    
+    # Delete user account
+    await db.users.delete_one({"email": student["email"], "role": UserRole.STUDENT})
+    
+    return {"message": "Student deleted successfully"}
+
+# ============ ENQUIRY/LEADS ROUTES ============
+
+@api_router.post("/enquiries", response_model=Enquiry)
+async def create_enquiry(enquiry_data: EnquiryCreate):
+    """Public endpoint for website enquiries"""
+    # For public enquiries, we need to determine institute_id
+    # For now, use a default or first admin found
+    admin = await db.users.find_one({"role": UserRole.ADMIN}, {"_id": 0})
+    institute_id = admin["id"] if admin else "default"
+    
+    enquiry = Enquiry(
+        **enquiry_data.model_dump(),
+        institute_id=institute_id
+    )
+    
+    doc = enquiry.model_dump()
+    doc["created_at"] = doc["created_at"].isoformat()
+    
+    await db.enquiries.insert_one(doc)
+    
+    return enquiry
+
+@api_router.get("/enquiries", response_model=List[Enquiry])
+async def get_enquiries(
+    status: Optional[str] = None,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    institute_id = current_user["institute_id"] or current_user["id"]
+    query = {"institute_id": institute_id}
+    
+    if status:
+        query["status"] = status
+    
+    enquiries = await db.enquiries.find(query, {"_id": 0}).to_list(1000)
+    
+    for enq in enquiries:
+        if isinstance(enq["created_at"], str):
+            enq["created_at"] = datetime.fromisoformat(enq["created_at"])
+    
+    return enquiries
+
+@api_router.patch("/enquiries/{enquiry_id}")
+async def update_enquiry_status(
+    enquiry_id: str,
+    status: str,
+    notes: Optional[str] = None,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    update_data = {"status": status}
+    if notes:
+        update_data["notes"] = notes
+    
+    result = await db.enquiries.update_one({"id": enquiry_id}, {"$set": update_data})
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+    
+    return {"message": "Enquiry updated successfully"}
+
+@api_router.delete("/enquiries/{enquiry_id}")
+async def delete_enquiry(
+    enquiry_id: str,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    result = await db.enquiries.delete_one({"id": enquiry_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+    
+    return {"message": "Enquiry deleted successfully"}
+
+# ============ INVITE ROUTES ============
+
+@api_router.post("/invites", response_model=Invite)
+async def create_invite(
+    invite_data: InviteCreate,
+    current_user: dict = Depends(require_role([UserRole.ADMIN]))
+):
+    batch_name = None
+    if invite_data.batch_id:
+        batch = await db.batches.find_one({"id": invite_data.batch_id}, {"_id": 0})
+        if not batch:
+            raise HTTPException(status_code=404, detail="Batch not found")
+        batch_name = batch["name"]
+    
+    invite = Invite(
+        **invite_data.model_dump(),
+        batch_name=batch_name,
+        invite_code=generate_invite_code(),
+        institute_id=current_user["institute_id"] or current_user["id"]
+    )
+    
+    doc = invite.model_dump()
+    doc["created_at"] = doc["created_at"].isoformat()
+    
+    await db.invites.insert_one(doc)
+    
+    # Blueprint: Send invite email
+    # await notification_service.send_email(
+    #     invite.email,
+    #     "TutorHub Invitation",
+    #     f"You're invited! Use code: {invite.invite_code}"
+    # )
+    
+    return invite
+
+@api_router.get("/invites", response_model=List[Invite])
+async def get_invites(current_user: dict = Depends(require_role([UserRole.ADMIN]))):
+    institute_id = current_user["institute_id"] or current_user["id"]
+    invites = await db.invites.find({"institute_id": institute_id}, {"_id": 0}).to_list(1000)
+    
+    for invite in invites:
+        if isinstance(invite["created_at"], str):
+            invite["created_at"] = datetime.fromisoformat(invite["created_at"])
+    
+    return invites
+
+@api_router.post("/invites/accept/{invite_code}")
+async def accept_invite(invite_code: str, password: str):
+    """Accept invite and create account"""
+    invite = await db.invites.find_one({"invite_code": invite_code, "status": "pending"}, {"_id": 0})
+    
+    if not invite:
+        raise HTTPException(status_code=404, detail="Invalid or expired invite code")
+    
+    # Check if user already exists
+    existing = await db.users.find_one({"email": invite["email"]})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Create user account
+    user_data = UserCreate(
+        email=invite["email"],
+        password=password,
+        name=invite["email"].split("@")[0],  # Default name
+        role=invite["role"],
+        institute_id=invite["institute_id"]
+    )
+    
+    user_dict = user_data.model_dump()
+    hashed_pw = hash_password(user_dict.pop("password"))
+    
+    user = User(**user_dict)
+    doc = user.model_dump()
+    doc["password"] = hashed_pw
+    doc["created_at"] = doc["created_at"].isoformat()
+    
+    await db.users.insert_one(doc)
+    
+    # Update invite status
+    await db.invites.update_one({"id": invite["id"]}, {"$set": {"status": "accepted"}})
+    
+    # Create token
+    token = create_access_token({"sub": user.id, "role": user.role})
+    
+    if isinstance(doc["created_at"], str):
+        doc["created_at"] = datetime.fromisoformat(doc["created_at"])
+    
+    return Token(access_token=token, token_type="bearer", user=User(**doc))
+
+# ============ CLASS SCHEDULE CSV UPLOAD ============
+
+@api_router.get("/schedule/sample-csv")
+async def download_sample_csv():
+    """Download sample CSV template for class schedule"""
+    from fastapi.responses import StreamingResponse
+    import io
+    
+    sample_data = "date,time,topic\n2025-01-15,10:00 AM,Introduction to Algebra\n2025-01-17,10:00 AM,Quadratic Equations\n"
+    
+    return StreamingResponse(
+        io.BytesIO(sample_data.encode()),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=class_schedule_sample.csv"}
+    )
+
+@api_router.post("/schedule/upload-csv")
+async def upload_class_schedule(
+    file: UploadFile = File(...),
+    batch_id: str = None,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.TUTOR]))
+):
+    """Upload class schedule via CSV"""
+    if not batch_id:
+        raise HTTPException(status_code=400, detail="batch_id is required")
+    
+    batch = await db.batches.find_one({"id": batch_id}, {"_id": 0})
+    if not batch:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    
+    try:
+        contents = await file.read()
+        df = pd.read_csv(io.BytesIO(contents))
+        
+        required_cols = ["date", "time"]
+        if not all(col in df.columns for col in required_cols):
+            raise HTTPException(status_code=400, detail=f"CSV must have columns: {required_cols}")
+        
+        classes_created = []
+        
+        for _, row in df.iterrows():
+            class_schedule = ClassSchedule(
+                batch_id=batch_id,
+                batch_name=batch["name"],
+                class_date=datetime.strptime(str(row["date"]), "%Y-%m-%d"),
+                class_time=str(row["time"]),
+                topic=str(row.get("topic", "")) if pd.notna(row.get("topic")) else None,
+                tutor_id=batch["tutor_id"],
+                institute_id=current_user["institute_id"] or current_user["id"]
+            )
+            
+            doc = class_schedule.model_dump()
+            doc["class_date"] = doc["class_date"].isoformat()
+            doc["created_at"] = doc["created_at"].isoformat()
+            
+            await db.classes.insert_one(doc)
+            classes_created.append(class_schedule.id)
+        
+        return {"message": f"Successfully created {len(classes_created)} classes", "class_ids": classes_created}
+    
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.post("/schedule/generate-recurring")
+async def generate_recurring_schedule(
+    batch_id: str,
+    start_date: str,
+    end_date: str,
+    days_of_week: List[int],  # 0=Monday, 6=Sunday
+    class_time: str,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.TUTOR]))
+):
+    """Generate recurring class schedule based on batch frequency"""
+    batch = await db.batches.find_one({"id": batch_id}, {"_id": 0})
+    if not batch:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+    
+    classes_created = []
+    current_date = start
+    
+    while current_date <= end:
+        if current_date.weekday() in days_of_week:
+            class_schedule = ClassSchedule(
+                batch_id=batch_id,
+                batch_name=batch["name"],
+                class_date=current_date,
+                class_time=class_time,
+                tutor_id=batch["tutor_id"],
+                institute_id=current_user["institute_id"] or current_user["id"]
+            )
+            
+            doc = class_schedule.model_dump()
+            doc["class_date"] = doc["class_date"].isoformat()
+            doc["created_at"] = doc["created_at"].isoformat()
+            
+            await db.classes.insert_one(doc)
+            classes_created.append(current_date.strftime("%Y-%m-%d"))
+        
+        current_date += timedelta(days=1)
+    
+    return {"message": f"Successfully created {len(classes_created)} recurring classes", "dates": classes_created}
+
+@api_router.patch("/classes/{class_id}/mark-absent")
+async def mark_class_absent(
+    class_id: str,
+    reschedule_date: Optional[str] = None,
+    current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.TUTOR]))
+):
+    """Mark class as absent and optionally reschedule"""
+    class_item = await db.classes.find_one({"id": class_id}, {"_id": 0})
+    if not class_item:
+        raise HTTPException(status_code=404, detail="Class not found")
+    
+    # Mark current class as cancelled
+    await db.classes.update_one(
+        {"id": class_id},
+        {"$set": {"status": "cancelled", "notes": "Tutor absent"}}
+    )
+    
+    # If reschedule date provided, create new class
+    if reschedule_date:
+        new_class = ClassSchedule(
+            batch_id=class_item["batch_id"],
+            batch_name=class_item["batch_name"],
+            class_date=datetime.strptime(reschedule_date, "%Y-%m-%d"),
+            class_time=class_item["class_time"],
+            topic=class_item.get("topic"),
+            tutor_id=class_item["tutor_id"],
+            institute_id=class_item["institute_id"],
+            notes="Rescheduled from cancelled class"
+        )
+        
+        doc = new_class.model_dump()
+        doc["class_date"] = doc["class_date"].isoformat()
+        doc["created_at"] = doc["created_at"].isoformat()
+        
+        await db.classes.insert_one(doc)
+        
+        return {"message": "Class marked absent and rescheduled", "new_class_id": new_class.id}
+    
+    return {"message": "Class marked as absent"}
+
 # ============ PAYMENT ROUTES ============
 
 @api_router.post("/payments", response_model=Payment)
