@@ -139,6 +139,22 @@ function App() {
             }
           />
           <Route
+            path="/tutor/batches"
+            element={
+              <ProtectedRoute allowedRoles={["tutor"]}>
+                <TutorBatchesList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tutor/students"
+            element={
+              <ProtectedRoute allowedRoles={["tutor"]}>
+                <TutorStudentsList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/tutor/classes"
             element={
               <ProtectedRoute allowedRoles={["tutor"]}>
@@ -151,6 +167,16 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["tutor"]}>
                 <TutorMaterials />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Shared Routes */}
+          <Route
+            path="/batch/:batchId"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "tutor"]}>
+                <BatchDetails />
               </ProtectedRoute>
             }
           />
