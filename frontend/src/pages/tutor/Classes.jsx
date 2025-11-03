@@ -16,6 +16,9 @@ export default function TutorClasses() {
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [absentDialogOpen, setAbsentDialogOpen] = useState(false);
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [rescheduleDate, setRescheduleDate] = useState('');
   const [formData, setFormData] = useState({
     batch_id: '',
     class_date: '',
