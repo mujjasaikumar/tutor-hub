@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
 import { Button } from '@/components/ui/button';
+import Footer from '@/components/shared/Footer';
 import { 
   GraduationCap, 
   LogOut, 
