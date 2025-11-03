@@ -1,52 +1,157 @@
-import { useEffect } from "react";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { Toaster } from "@/components/ui/sonner";
+import useAuthStore from "@/store/authStore";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Pages
+import Login from "@/pages/auth/Login";
+import Signup from "@/pages/auth/Signup";
+import AdminDashboard from "@/pages/admin/Dashboard";
+import AdminBatches from "@/pages/admin/Batches";
+import AdminStudents from "@/pages/admin/Students";
+import AdminPayments from "@/pages/admin/Payments";
+import TutorDashboard from "@/pages/tutor/Dashboard";
+import TutorClasses from "@/pages/tutor/Classes";
+import TutorMaterials from "@/pages/tutor/Materials";
+import StudentDashboard from "@/pages/student/Dashboard";
+import StudentClasses from "@/pages/student/Classes";
+import StudentMaterials from "@/pages/student/Materials";
+import StudentHomework from "@/pages/student/Homework";
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+// Protected Route Component
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, isAuthenticated } = useAuthStore();
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
 };
 
 function App() {
+  const { isAuthenticated, user } = useAuthStore();
+
+  // Redirect root based on role
+  const getRootRedirect = () => {
+    if (!isAuthenticated) return <Navigate to="/login" replace />;
+    
+    if (user?.role === "admin") return <Navigate to="/admin/dashboard" replace />;
+    if (user?.role === "tutor") return <Navigate to="/tutor/dashboard" replace />;
+    if (user?.role === "student") return <Navigate to="/student/dashboard" replace />;
+    
+    return <Navigate to="/login" replace />;
+  };
+
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/" element={getRootRedirect()} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/batches"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminBatches />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/students"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminStudents />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/payments"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminPayments />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Tutor Routes */}
+          <Route
+            path="/tutor/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["tutor"]}>
+                <TutorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tutor/classes"
+            element={
+              <ProtectedRoute allowedRoles={["tutor"]}>
+                <TutorClasses />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tutor/materials"
+            element={
+              <ProtectedRoute allowedRoles={["tutor"]}>
+                <TutorMaterials />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Student Routes */}
+          <Route
+            path="/student/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/classes"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentClasses />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/materials"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentMaterials />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/homework"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentHomework />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
+      <Toaster position="top-right" />
     </div>
   );
 }
