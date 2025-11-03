@@ -141,7 +141,10 @@ export default function AdminBatches() {
             </h1>
             <p className="text-gray-600 mt-1">Manage all batches</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) resetForm();
+          }}>
             <DialogTrigger asChild>
               <Button className="bg-indigo-600 hover:bg-indigo-700" data-testid="create-batch-button">
                 <Plus className="w-4 h-4 mr-2" />
@@ -150,7 +153,7 @@ export default function AdminBatches() {
             </DialogTrigger>
             <DialogContent className="max-w-md" data-testid="create-batch-dialog">
               <DialogHeader>
-                <DialogTitle>Create New Batch</DialogTitle>
+                <DialogTitle>{editMode ? 'Edit Batch' : 'Create New Batch'}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -176,15 +179,19 @@ export default function AdminBatches() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="tutor_id">Tutor ID</Label>
-                  <Input
-                    id="tutor_id"
-                    value={formData.tutor_id}
-                    onChange={(e) => setFormData({ ...formData, tutor_id: e.target.value })}
-                    placeholder="Enter tutor ID"
-                    required
-                    data-testid="batch-tutor-input"
-                  />
+                  <Label htmlFor="tutor_id">Tutor</Label>
+                  <Select value={formData.tutor_id} onValueChange={(value) => setFormData({ ...formData, tutor_id: value })}>
+                    <SelectTrigger data-testid="batch-tutor-select">
+                      <SelectValue placeholder="Select tutor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tutors.map((tutor) => (
+                        <SelectItem key={tutor.id} value={tutor.id}>
+                          {tutor.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="timing">Timing</Label>
@@ -221,7 +228,7 @@ export default function AdminBatches() {
                   />
                 </div>
                 <Button type="submit" className="w-full" data-testid="submit-batch-button">
-                  Create Batch
+                  {editMode ? 'Update Batch' : 'Create Batch'}
                 </Button>
               </form>
             </DialogContent>
