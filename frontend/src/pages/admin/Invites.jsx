@@ -138,13 +138,66 @@ export default function AdminInvites() {
             </h1>
             <p className="text-gray-600 mt-1">Send invitations to tutors and students</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-indigo-600 hover:bg-indigo-700" data-testid="send-invite-button">
-                <Plus className="w-4 h-4 mr-2" />
-                Send Invite
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Dialog open={bulkDialogOpen} onOpenChange={setBulkDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" data-testid="bulk-invite-button">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Bulk Invite
+                </Button>
+              </DialogTrigger>
+              <DialogContent data-testid="bulk-invite-dialog">
+                <DialogHeader>
+                  <DialogTitle>Bulk Invite Students</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Select Batch</Label>
+                    <Select value={selectedBatchForBulk} onValueChange={setSelectedBatchForBulk}>
+                      <SelectTrigger data-testid="bulk-batch-select">
+                        <SelectValue placeholder="Select batch" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {batches.map((batch) => (
+                          <SelectItem key={batch.id} value={batch.id}>
+                            {batch.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Upload CSV File</Label>
+                    <Input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleBulkUpload}
+                      data-testid="bulk-file-upload"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Required column: email
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={downloadSampleCSV}
+                      className="w-full mt-2"
+                      type="button"
+                      data-testid="download-bulk-sample"
+                    >
+                      Download Sample CSV
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-indigo-600 hover:bg-indigo-700" data-testid="send-invite-button">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Send Invite
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-md" data-testid="send-invite-dialog">
               <DialogHeader>
                 <DialogTitle>Send Invitation</DialogTitle>
