@@ -101,3 +101,86 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  TutorHub password change modal bug fix. Students with temporary password (Student@123) must be forced to change their password on first login. The modal was not appearing because the backend Token model was missing the must_change_password field.
+
+backend:
+  - task: "Login endpoint returns must_change_password flag"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Fixed Token model (line 80-84) to include must_change_password field. The login endpoint at line 400 already returns this field, but it was being filtered by Pydantic response validation."
+  
+  - task: "Change password endpoint"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Endpoint exists at line 409-425. It verifies old password, hashes new password, and sets must_change_password to False after successful change."
+
+frontend:
+  - task: "Login page with password change modal integration"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/auth/Login.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Frontend correctly extracts must_change_password from login response and shows modal. No changes needed on frontend."
+  
+  - task: "Password change modal component"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/shared/ChangePasswordModal.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Modal properly implemented with validation, API calls, and non-closable mode for forced password changes."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Login endpoint returns must_change_password flag"
+    - "Change password endpoint"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Fixed the Token model to include must_change_password field. Please test the following scenarios:
+      
+      1. Create/verify a student user with must_change_password=true exists in database
+      2. Test login with this student (email/password)
+      3. Verify the response includes must_change_password: true
+      4. Test the change-password endpoint with old password and new password
+      5. Verify after password change, must_change_password is set to false
+      6. Test login again to verify must_change_password is now false
+      
+      Use these credentials if they exist or create a test student:
+      - Default temp password: Student@123
+      - Test email: student@test.com or similar
