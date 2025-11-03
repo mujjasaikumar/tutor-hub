@@ -226,6 +226,15 @@ export default function AdminStudents() {
                     <p className="text-xs text-gray-500 mt-1">
                       Required columns: name, email, phone, total_fees
                     </p>
+                    <Button
+                      variant="outline"
+                      onClick={downloadSampleCSV}
+                      className="w-full mt-2"
+                      type="button"
+                      data-testid="download-sample-csv"
+                    >
+                      Download Sample CSV
+                    </Button>
                   </div>
                 </div>
               </DialogContent>
