@@ -211,7 +211,10 @@ export default function AdminStudents() {
               </DialogContent>
             </Dialog>
 
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={dialogOpen} onOpenChange={(open) => {
+              setDialogOpen(open);
+              if (!open) resetForm();
+            }}>
               <DialogTrigger asChild>
                 <Button className="bg-indigo-600 hover:bg-indigo-700" data-testid="add-student-button">
                   <Plus className="w-4 h-4 mr-2" />
@@ -220,7 +223,7 @@ export default function AdminStudents() {
               </DialogTrigger>
               <DialogContent className="max-w-md" data-testid="add-student-dialog">
                 <DialogHeader>
-                  <DialogTitle>Add New Student</DialogTitle>
+                  <DialogTitle>{editMode ? 'Edit Student' : 'Add New Student'}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
