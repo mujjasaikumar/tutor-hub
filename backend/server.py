@@ -2,13 +2,18 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 import logging
+import sys
+from pathlib import Path
 
-from .config import ApplicationConfig
-from .database import database
-from .routes.auth_routes import auth_router
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
+
+from config import ApplicationConfig
+from database import database
+from routes.auth_routes import auth_router
 
 # Import old routes temporarily - will be refactored progressively
-from .server_old import (
+from server_old import (
     api_router as old_api_router,
     app as old_app
 )
