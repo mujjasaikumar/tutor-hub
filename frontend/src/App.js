@@ -15,15 +15,18 @@ import AdminTutors from "@/pages/admin/Tutors";
 import AdminEnquiries from "@/pages/admin/Enquiries";
 import AdminInvites from "@/pages/admin/Invites";
 import AdminSchedule from "@/pages/admin/Schedule";
+import AdminProfile from "@/pages/admin/Profile";
 import TutorDashboard from "@/pages/tutor/Dashboard";
 import TutorClasses from "@/pages/tutor/Classes";
 import TutorMaterials from "@/pages/tutor/Materials";
 import TutorBatchesList from "@/pages/tutor/BatchesList";
 import TutorStudentsList from "@/pages/tutor/StudentsList";
+import TutorProfile from "@/pages/tutor/Profile";
 import StudentDashboard from "@/pages/student/Dashboard";
 import StudentClasses from "@/pages/student/Classes";
 import StudentMaterials from "@/pages/student/Materials";
 import StudentHomework from "@/pages/student/Homework";
+import StudentProfile from "@/pages/student/Profile";
 import BatchDetails from "@/pages/shared/BatchDetails";
 
 // Protected Route Component
