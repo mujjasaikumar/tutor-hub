@@ -1093,7 +1093,7 @@ async def upload_class_schedule(
     batch_id: str = None,
     current_user: dict = Depends(require_role([UserRole.ADMIN, UserRole.TUTOR]))
 ):
-    """Upload class schedule via CSV"""
+    """Upload class schedule via CSV - dates are optional"""
     if not batch_id:
         raise HTTPException(status_code=400, detail="batch_id is required")
     
@@ -1105,17 +1105,25 @@ async def upload_class_schedule(
         contents = await file.read()
         df = pd.read_csv(io.BytesIO(contents))
         
-        required_cols = ["date", "time"]
+        required_cols = ["time"]
         if not all(col in df.columns for col in required_cols):
-            raise HTTPException(status_code=400, detail=f"CSV must have columns: {required_cols}")
+            raise HTTPException(status_code=400, detail="CSV must have 'time' column at minimum")
         
         classes_created = []
+        current_date = datetime.now(timezone.utc)
         
-        for _, row in df.iterrows():
+        for idx, row in df.iterrows():
+            # If date provided, use it; otherwise auto-schedule for next day
+            if "date" in df.columns and pd.notna(row["date"]):
+                class_date = datetime.strptime(str(row["date"]), "%Y-%m-%d")
+            else:
+                # Auto-schedule for the next day
+                class_date = current_date + timedelta(days=idx + 1)
+            
             class_schedule = ClassSchedule(
                 batch_id=batch_id,
                 batch_name=batch["name"],
-                class_date=datetime.strptime(str(row["date"]), "%Y-%m-%d"),
+                class_date=class_date,
                 class_time=str(row["time"]),
                 topic=str(row.get("topic", "")) if pd.notna(row.get("topic")) else None,
                 tutor_id=batch["tutor_id"],
