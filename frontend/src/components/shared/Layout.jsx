@@ -148,8 +148,9 @@ export default function Layout({ children, role }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto bg-gray-50 w-full lg:w-auto">
-        <div className="p-4 sm:p-6 lg:p-8 mt-16 lg:mt-0">{children}</div>
+      <main className="flex-1 overflow-auto bg-gray-50 w-full lg:w-auto flex flex-col">
+        <div className="p-4 sm:p-6 lg:p-8 mt-16 lg:mt-0 flex-1">{children}</div>
+        <Footer />
       </main>
     </div>
   );
