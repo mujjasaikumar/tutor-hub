@@ -211,12 +211,67 @@ export default function TutorClasses() {
                       <div className="text-gray-600">Topic: {classItem.topic}</div>
                     )}
                   </div>
+                  {classItem.status === 'scheduled' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-orange-600 hover:text-orange-700"
+                      onClick={() => openAbsentDialog(classItem)}
+                      data-testid={`mark-absent-${classItem.id}`}
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Mark Absent
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
       </div>
+
+      <Dialog open={absentDialogOpen} onOpenChange={setAbsentDialogOpen}>
+        <DialogContent className="max-w-md" data-testid="absent-dialog">
+          <DialogHeader>
+            <DialogTitle>Mark Class Absent</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Marking this class as absent will notify students. You can optionally reschedule it.
+            </p>
+            <div>
+              <Label htmlFor="reschedule_date">Reschedule Date (Optional)</Label>
+              <Input
+                id="reschedule_date"
+                type="date"
+                value={rescheduleDate}
+                onChange={(e) => setRescheduleDate(e.target.value)}
+                data-testid="reschedule-date-input"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setAbsentDialogOpen(false);
+                  setRescheduleDate('');
+                }}
+                className="flex-1"
+                data-testid="cancel-absent"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleMarkAbsent}
+                className="flex-1 bg-orange-600 hover:bg-orange-700"
+                data-testid="confirm-absent"
+              >
+                Mark Absent
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
