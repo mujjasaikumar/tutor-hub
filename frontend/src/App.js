@@ -29,6 +29,12 @@ import StudentHomework from "@/pages/student/Homework";
 import StudentProfile from "@/pages/student/Profile";
 import BatchDetails from "@/pages/shared/BatchDetails";
 
+// Public Pages
+import AboutUs from "@/pages/public/AboutUs";
+import ContactUs from "@/pages/public/ContactUs";
+import PrivacyPolicy from "@/pages/public/PrivacyPolicy";
+import CookiePolicy from "@/pages/public/CookiePolicy";
+
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, isAuthenticated } = useAuthStore();
