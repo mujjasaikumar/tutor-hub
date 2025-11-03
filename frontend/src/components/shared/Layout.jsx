@@ -17,8 +17,11 @@ export default function Layout({ children, role }) {
   const adminLinks = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/admin/batches', label: 'Batches', icon: BookOpen },
+    { path: '/admin/tutors', label: 'Tutors', icon: Users },
     { path: '/admin/students', label: 'Students', icon: Users },
     { path: '/admin/payments', label: 'Payments', icon: CreditCard },
+    { path: '/admin/enquiries', label: 'Enquiries', icon: Users },
+    { path: '/admin/invites', label: 'Invites', icon: Users },
   ];
 
   const tutorLinks = [
