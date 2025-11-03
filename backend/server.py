@@ -61,6 +61,17 @@ class UserCreate(BaseModel):
     phone: Optional[str] = None
     whatsapp: Optional[str] = None
     institute_id: Optional[str] = None
+    must_change_password: bool = False
+
+class PasswordChange(BaseModel):
+    old_password: str
+    new_password: str
+
+class BatchActivity(BaseModel):
+    batch_id: str
+    classes: List[dict]
+    students: List[dict]
+    materials: List[dict]
 
 class UserLogin(BaseModel):
     email: EmailStr
