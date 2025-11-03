@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import custom utilities */
+@import './styles/utilities.css';
+
 body {
     margin: 0;
     font-family:
