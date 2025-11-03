@@ -622,12 +622,13 @@ async def create_student(
     # Create student user account
     user_data = UserCreate(
         email=student.email,
-        password="student123",  # Default password
+        password="Student@123",  # Static temporary password
         name=student.name,
         role=UserRole.STUDENT,
         phone=student.phone,
         whatsapp=student.whatsapp,
-        institute_id=student.institute_id
+        institute_id=student.institute_id,
+        must_change_password=True
     )
     
     # Check if user already exists
