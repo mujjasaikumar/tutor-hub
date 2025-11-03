@@ -247,6 +247,12 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Public Routes */}
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-right" />
