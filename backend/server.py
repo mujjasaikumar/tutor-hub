@@ -392,7 +392,13 @@ async def login(credentials: UserLogin):
     user_obj = User(**user)
     token = create_access_token({"sub": user_obj.id, "role": user_obj.role})
     
-    return Token(access_token=token, token_type="bearer", user=user_obj)
+    # Include must_change_password in response
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": user_obj,
+        "must_change_password": user.get("must_change_password", False)
+    }
 
 @api_router.get("/auth/me", response_model=User)
 async def get_me(current_user: dict = Depends(get_current_user)):
