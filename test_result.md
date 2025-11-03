@@ -108,27 +108,33 @@ user_problem_statement: |
 backend:
   - task: "Login endpoint returns must_change_password flag"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Fixed Token model (line 80-84) to include must_change_password field. The login endpoint at line 400 already returns this field, but it was being filtered by Pydantic response validation."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED SUCCESSFULLY: Login endpoint correctly returns must_change_password field. Test student (student@test.com) with must_change_password=true logs in successfully and response includes must_change_password: true in the JSON response along with access_token, token_type, and user object."
   
   - task: "Change password endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Endpoint exists at line 409-425. It verifies old password, hashes new password, and sets must_change_password to False after successful change."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED SUCCESSFULLY: Password change endpoint working correctly. Successfully changes password from 'Student@123' to 'NewPassword123', returns success message, and sets must_change_password to false. Also correctly rejects invalid old passwords with 400 status and appropriate error message."
 
 frontend:
   - task: "Login page with password change modal integration"
